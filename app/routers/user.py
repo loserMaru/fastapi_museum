@@ -9,7 +9,7 @@ from app.models.user_models import (
     User,
 )
 from app.repositories.database import SessionDep
-from app.services.requests import get_list
+from app.services.requests import get_list_from_db
 from app.services.validators import email_validate
 
 router = APIRouter(
@@ -25,7 +25,7 @@ async def read(
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100,
 ):
-    return get_list(session, User, offset=offset, limit=limit)
+    return get_list_from_db(session, User, offset=offset, limit=limit)
 
 
 @router.post("/", response_model=UserCreate)
