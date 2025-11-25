@@ -1,14 +1,13 @@
 from sqlmodel import SQLModel, Field
 
-
 class UserBase(SQLModel):
-    username: str = Field(index=True)
-    password: str = Field()
-    email: str | None = Field(index=True)
+    username: str = Field(index=True, max_length=25)
+    email: str | None = Field(index=True, max_length=50, unique=True)
 
 
 class User(UserBase, table=True):
     id: int = Field(default=None, primary_key=True)
+    password: str = Field(nullable=False)
 
 
 class UserPublic(UserBase):
@@ -16,7 +15,7 @@ class UserPublic(UserBase):
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 class UserUpdate(UserBase):
