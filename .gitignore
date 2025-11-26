@@ -1,3 +1,15 @@
+# PyCharm
 .idea/
+*.iml
+*.xml
+
+# Python virtual environment
+venv/
+.venv/
+
+# Byte-compiled / cache
 __pycache__/
-database.db
+*.py[cod]
+
+# Database
+*.db
