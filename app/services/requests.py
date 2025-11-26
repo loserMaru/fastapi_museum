@@ -16,8 +16,9 @@ def get_item_from_db_by_pk(session: SessionDep, obj, item_id):
         raise ItemNotFoundError(f"{obj.__name__} with id={item_id} not found")
     return item
 
+
 def get_item_from_db(session: SessionDep, obj, column_name: str, value):
-    column = getattr(obj, column_name) # достать нужное поле по имени (эквивалентно записи obj.column_name)
+    column = getattr(obj, column_name)  # достать нужное поле по имени (эквивалентно записи obj.column_name)
     print(column)
     item = session.exec(select(obj).where(column == value)).first()
     if not item:
@@ -31,18 +32,12 @@ def update_item_from_db(session: SessionDep, obj, item_id, update_data):
         raise ItemNotFoundError(f"{obj.__name__} with id={item_id} not found")
 
     item_data = update_data.model_dump(exclude_unset=True)
-
-    if "email" in item_data:
-        try:
-            email_validate(item_data["email"])
-        except Exception as e:
-            raise ValidationError(str(e))
-
     item_db.sqlmodel_update(item_data)
     session.add(item_db)
     session.commit()
     session.refresh(item_db)
     return item_db
+
 
 def delete_item_from_db(session: SessionDep, obj, item_id):
     item_db = session.get(obj, item_id)
