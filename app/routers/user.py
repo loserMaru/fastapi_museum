@@ -18,6 +18,7 @@ from app.services.requests import (
     update_item_from_db,
     delete_item_from_db,
 )
+from app.services.user_service import UserService
 from app.services.validators import email_validate, hash_password
 
 router = APIRouter(
@@ -60,10 +61,10 @@ async def create_user(user: UserCreate, session: SessionDep):
         return db_user
 
 
-@router.patch("/{user_id}", response_model=UserUpdate)
+@router.patch("/{user_id}", response_model=UserPublic)
 async def update_user(session: SessionDep, user_id: int, user_data: UserUpdate):
     try:
-        return update_item_from_db(session, User, user_id, user_data)
+        return UserService.update_user(session, user_id, user_data)
 
     except ItemNotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
