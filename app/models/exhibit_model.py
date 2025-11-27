@@ -1,7 +1,10 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timezone
+from pydantic import field_serializer
+from zoneinfo import ZoneInfo
 
 from sqlmodel import SQLModel, Field, Relationship
 
+from app.models.base import TimestampMixin
 from app.models.category_model import CategoryPublic
 
 
@@ -12,10 +15,8 @@ class ExhibitBase(SQLModel):
     category_id: int = Field(foreign_key='category.id', nullable=False)
 
 
-class Exhibit(ExhibitBase, table=True):
+class Exhibit(ExhibitBase, TimestampMixin, table=True):
     id: int = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Relationship для ORM
     category: "Category" = Relationship(back_populates="exhibits")  # type: ignore
@@ -28,6 +29,16 @@ class ExhibitPublic(ExhibitBase):
     category: CategoryPublic
 
 
+    @field_serializer("created_at", "updated_at")
+    def serialize(self, value: datetime) -> str:
+        moscow = ZoneInfo("Europe/Moscow")
+
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+
+        return value.astimezone(moscow).strftime("%d.%m.%Y %H:%M:%S")
+
+
 class ExhibitCreate(ExhibitBase):
     pass
 
@@ -36,4 +47,4 @@ class ExhibitUpdate(SQLModel):
     title: str | None = None
     description: str | None = None
     image_url: str | None = None
-    category_id: int | None = None
+    category_id: int
