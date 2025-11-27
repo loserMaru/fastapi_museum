@@ -1,4 +1,6 @@
-from sqlmodel import select
+from typing import Type
+
+from sqlmodel import select, SQLModel
 
 from app.exceptions.domain import ItemNotFoundError, ValidationError
 from app.repositories.database import SessionDep
@@ -10,7 +12,7 @@ def get_list_from_db(session: SessionDep, obj, offset, limit):
     return lst
 
 
-def get_item_from_db_by_pk(session: SessionDep, obj, item_id):
+def get_item_from_db_by_pk(session: SessionDep, obj: Type[SQLModel], item_id: int):
     item = session.get(obj, item_id)
     if not item:
         raise ItemNotFoundError(f"{obj.__name__} with id={item_id} not found")
