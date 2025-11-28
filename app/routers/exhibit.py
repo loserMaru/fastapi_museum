@@ -1,14 +1,20 @@
+import uuid
 from typing import Annotated
+from pathlib import Path
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Form, File, UploadFile
 
 from app.exceptions.domain import ItemNotFoundError
 from app.models.category_model import Category
-from app.models.exhibit_model import Exhibit, ExhibitPublic, ExhibitCreate, ExhibitUpdate
+from app.models.exhibit_model import Exhibit, ExhibitPublic
 from app.repositories.database import SessionDep
 from app.services.exhibit_service import ExhibitService
-from app.services.requests import get_list_from_db, get_item_from_db_by_pk, update_item_from_db, delete_item_from_db, \
+from app.services.requests import (
+    get_list_from_db,
+    get_item_from_db_by_pk,
+    delete_item_from_db,
     get_item_from_db
+)
 
 router = APIRouter(
     prefix="/exhibit",
@@ -32,13 +38,38 @@ async def get_exhibit(session: SessionDep, exhibit_id: int):
 
 
 @router.post("/", response_model=ExhibitPublic)
-async def create_exhibit(session: SessionDep, exhibit: ExhibitCreate):
-    db_exhibit = Exhibit(**exhibit.model_dump())
+async def create_exhibit(
+        session: SessionDep,
+        title: str = Form(...),
+        description: str = Form(...),
+        category_id: int = Form(...),
+        image: UploadFile | None = File(None),
+):
     try:
-        get_item_from_db(session, Category, "id", exhibit.category_id)
+        get_item_from_db(session, Category, "id", category_id)
 
     except ItemNotFoundError:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    image_url = None
+    if image:
+        UPLOAD_DIR = Path("app/static/uploads")
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        ext = image.filename.split(".")[-1]
+        filename = f"{uuid.uuid4()}.{ext}"
+        filepath = UPLOAD_DIR / filename
+
+        with filepath.open("wb") as buffer:
+            buffer.write(await image.read())
+
+        image_url = f"app/static/uploads/{filename}"
+
+    db_exhibit = Exhibit(
+        title=title,
+        description=description,
+        category_id=category_id,
+        image_url=image_url,
+    )
 
     session.add(db_exhibit)
     session.commit()
@@ -47,8 +78,22 @@ async def create_exhibit(session: SessionDep, exhibit: ExhibitCreate):
 
 
 @router.patch("/{exhibit_id}", response_model=ExhibitPublic)
-async def update_exhibit(session: SessionDep, exhibit_id: int, exhibit_data: ExhibitUpdate):
-    return ExhibitService.update_exhibit(session, exhibit_id, exhibit_data)
+async def update_exhibit(
+        session: SessionDep,
+        exhibit_id: int,
+        title: str | None = Form(None),
+        description: str | None = Form(None),
+        category_id: int | None = Form(None),
+        image: UploadFile | None = File(None),
+):
+    return ExhibitService.update_exhibit(
+        session,
+        exhibit_id,
+        title,
+        description,
+        category_id,
+        image
+    )
 
 
 @router.delete("/{exhibit_id}")
