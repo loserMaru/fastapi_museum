@@ -13,3 +13,6 @@ __pycache__/
 
 # Database
 *.db
+
+# Pictures
+app/static/uploads
