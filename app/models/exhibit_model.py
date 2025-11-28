@@ -1,4 +1,4 @@
-from datetime import datetime, UTC, timezone
+from datetime import datetime, timezone
 from pydantic import field_serializer
 from zoneinfo import ZoneInfo
 
@@ -11,12 +11,12 @@ from app.models.category_model import CategoryPublic
 class ExhibitBase(SQLModel):
     title: str = Field(index=True, max_length=50)
     description: str = Field(max_length=500)
-    image_url: str = Field(max_length=500)
     category_id: int = Field(foreign_key='category.id', nullable=False)
 
 
 class Exhibit(ExhibitBase, TimestampMixin, table=True):
     id: int = Field(default=None, primary_key=True)
+    image_url: str | None = Field(default=None, max_length=500)
 
     # Relationship для ORM
     category: "Category" = Relationship(back_populates="exhibits")  # type: ignore
@@ -24,6 +24,7 @@ class Exhibit(ExhibitBase, TimestampMixin, table=True):
 
 class ExhibitPublic(ExhibitBase):
     id: int
+    image_url: str | None
     created_at: datetime
     updated_at: datetime
     category: CategoryPublic
@@ -46,5 +47,4 @@ class ExhibitCreate(ExhibitBase):
 class ExhibitUpdate(SQLModel):
     title: str | None = None
     description: str | None = None
-    image_url: str | None = None
     category_id: int
