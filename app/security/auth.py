@@ -1,23 +1,25 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.models.user_models import User
 from app.repositories.database import SessionDep
-from app.security.jwt_utils import create_access_token
+from app.security.jwt_utils import decode_token
 from app.services.requests import get_item_from_db
-from app.services.validators import verify_password
 
-router = APIRouter()
+bearer_scheme = HTTPBearer()  # извлекает токен из заголовка Authorization
 
-@router.post("/login")
-async def login(login_data: LoginRequest, session: SessionDep):
-    user = get_item_from_db(session, User, "email", login_data.email)
 
+def get_current_user(
+        session: SessionDep,
+        credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
+    token = credentials.credentials
+    payload = decode_token(token)
+    email = payload.get("sub")
+    if not email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    # user = session.exec(select(User).where(User.email == email)).first()
+    user = get_item_from_db(session, User, "email", email)
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-
-    if not verify_password(login_data.password, user.password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
