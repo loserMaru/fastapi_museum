@@ -2,12 +2,13 @@ import uuid
 from typing import Annotated
 from pathlib import Path
 
-from fastapi import APIRouter, Query, HTTPException, Form, File, UploadFile
+from fastapi import APIRouter, Query, HTTPException, Form, File, UploadFile, Depends
 
 from app.exceptions.domain import ItemNotFoundError
 from app.models.category_model import Category
 from app.models.exhibit_model import Exhibit, ExhibitPublic
 from app.repositories.database import SessionDep
+from app.security.auth import get_current_user
 from app.services.exhibit_service import ExhibitService
 from app.services.requests import (
     get_list_from_db,
@@ -26,6 +27,7 @@ router = APIRouter(
 @router.get("/", response_model=list[ExhibitPublic])
 async def get_list(
         session: SessionDep,
+        _: object = Depends(get_current_user),
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100,
 ):
