@@ -11,6 +11,7 @@ from app.models.user_models import (
     UserUpdate,
 )
 from app.repositories.database import SessionDep
+from app.security.auth import get_current_user
 from app.services.requests import (
     get_list_from_db,
     get_item_from_db,
@@ -31,6 +32,7 @@ router = APIRouter(
 @router.get("/", response_model=list[UserPublic])
 async def get_list(
         session: SessionDep,
+        _: User = Depends(get_current_user), # _ заменить на user
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100,
 ):
