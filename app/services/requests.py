@@ -4,7 +4,6 @@ from sqlmodel import select, SQLModel
 
 from app.exceptions.domain import ItemNotFoundError, ValidationError
 from app.repositories.database import SessionDep
-from app.services.validators import email_validate
 
 
 def get_list_from_db(session: SessionDep, obj, offset, limit):
@@ -21,7 +20,6 @@ def get_item_from_db_by_pk(session: SessionDep, obj: Type[SQLModel], item_id: in
 
 def get_item_from_db(session: SessionDep, obj, column_name: str, value):
     column = getattr(obj, column_name)  # достать нужное поле по имени (эквивалентно записи obj.column_name)
-    print(column)
     item = session.exec(select(obj).where(column == value)).first()
     if not item:
         raise ItemNotFoundError(f"{obj.__name__} with column={column_name} and value={value} not found")
