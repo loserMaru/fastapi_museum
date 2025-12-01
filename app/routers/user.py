@@ -64,7 +64,7 @@ async def create_user(user: UserCreate, session: SessionDep):
 
 
 @router.patch("/{user_id}", response_model=UserPublic)
-async def update_user(session: SessionDep, user_id: int, user_data: UserUpdate):
+async def update_user(session: SessionDep, user_id: int, user_data: UserUpdate, _: User = Depends(get_current_user),):
     try:
         return UserService.update_user(session, user_id, user_data)
 
@@ -76,7 +76,7 @@ async def update_user(session: SessionDep, user_id: int, user_data: UserUpdate):
 
 
 @router.delete("/{user_id}")
-async def delete_user(session: SessionDep, user_id: int):
+async def delete_user(session: SessionDep, user_id: int, _: User = Depends(get_current_user),):
     try:
         delete_item_from_db(session, User, user_id)
         return {"msg": f"User with user id {user_id} deleted"}
