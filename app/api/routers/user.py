@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Query, Depends, HTTPException
-from sqlmodel import select
 
 from app.exceptions.domain import ItemNotFoundError, ValidationError
 from app.models.user_models import (
@@ -10,13 +9,12 @@ from app.models.user_models import (
     User,
     UserUpdate,
 )
-from app.repositories.database import SessionDep
+from app.core.database import SessionDep
 from app.security.auth import get_current_user
 from app.services.requests import (
     get_list_from_db,
     get_item_from_db,
     get_item_from_db_by_pk,
-    update_item_from_db,
     delete_item_from_db,
 )
 from app.services.user_service import UserService
