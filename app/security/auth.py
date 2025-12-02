@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.models.user_models import User
-from app.repositories.database import SessionDep
+from app.core.database import SessionDep
 from app.security.jwt_utils import decode_token
 from app.services.requests import get_item_from_db
 

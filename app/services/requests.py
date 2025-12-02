@@ -2,8 +2,8 @@ from typing import Type
 
 from sqlmodel import select, SQLModel
 
-from app.exceptions.domain import ItemNotFoundError, ValidationError
-from app.repositories.database import SessionDep
+from app.exceptions.domain import ItemNotFoundError
+from app.core.database import SessionDep
 
 
 def get_list_from_db(session: SessionDep, obj, offset, limit):
