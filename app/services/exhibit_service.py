@@ -1,11 +1,13 @@
+import json
 import uuid
 from pathlib import Path
 
 from fastapi import HTTPException
 
+from app.core.redis import redis_client
 from app.models.category_model import Category
 from app.models.exhibit_model import Exhibit
-from app.services.requests import get_item_from_db_by_pk, get_item_from_db
+from app.services.requests import get_item_from_db_by_pk, get_item_from_db, get_list_from_db
 
 
 class ExhibitService:
@@ -48,3 +50,38 @@ class ExhibitService:
         session.commit()
         session.refresh(exhibit)
         return exhibit
+
+    @staticmethod
+    def get_list(session, offset: int, limit: int):
+        cache_key = f"exhibits:{offset}:{limit}"
+        cached = redis_client.get(cache_key)
+
+        if cached:
+            # При чтении из Redis json.loads вернёт список dict
+            data = json.loads(cached)
+            return data
+
+        # Получаем экспонаты из БД через твою функцию
+        exhibits = get_list_from_db(session, Exhibit, offset=offset, limit=limit)
+
+        data = []
+        for ex in exhibits:
+            item = ex.model_dump()  # базовые поля Exhibit
+
+            # Формируем обязательное поле category
+            item["category"] = {
+                "id": ex.category.id,
+                "title": ex.category.title,
+                "description": ex.category.description
+            }
+
+            # Преобразуем datetime в ISO-строку
+            item["created_at"] = ex.created_at.isoformat()
+            item["updated_at"] = ex.updated_at.isoformat()
+
+            data.append(item)
+
+        # Кэшируем сериализованный JSON на 10 минут
+        redis_client.setex(cache_key, 600, json.dumps(data))
+
+        return data
