@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, HTTPException
 
 from app.exceptions.domain import ItemNotFoundError
 from app.models.category_model import Category, CategoryPublic, CategoryCreate, CategoryUpdate
-from app.repositories.database import SessionDep
+from app.core.database import SessionDep
 from app.services.requests import get_list_from_db, get_item_from_db, get_item_from_db_by_pk, update_item_from_db, \
     delete_item_from_db
 

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Query, HTTPException, Form, File, UploadFile, Dep
 from app.exceptions.domain import ItemNotFoundError
 from app.models.category_model import Category
 from app.models.exhibit_model import Exhibit, ExhibitPublic
-from app.repositories.database import SessionDep
+from app.core.database import SessionDep
 from app.security.auth import get_current_user
 from app.services.exhibit_service import ExhibitService
 from app.services.requests import (
@@ -31,7 +31,7 @@ async def get_list(
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100,
 ):
-    return get_list_from_db(session, Exhibit, offset, limit)
+    return ExhibitService.get_list(session, offset, limit)
 
 
 @router.get("/{exhibit_id}", response_model=ExhibitPublic)

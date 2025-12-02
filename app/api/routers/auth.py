@@ -1,10 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException
 
 from app.exceptions.domain import ItemNotFoundError
 from app.models.auth_model import LoginRequest
 from app.models.user_models import User
-from app.repositories.database import SessionDep
+from app.core.database import SessionDep
 from app.security.jwt_utils import create_access_token
 from app.services.requests import get_item_from_db
 from app.services.validators import verify_password
