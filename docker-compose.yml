@@ -1,0 +1,27 @@
+services:
+  fastapi:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - sqlite_data:/app
+    environment:
+      DATABASE_URL: "sqlite:///database.db"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  sqlite_data:
+  redis_data:
