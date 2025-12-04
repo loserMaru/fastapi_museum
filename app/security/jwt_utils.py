@@ -6,6 +6,7 @@ from jose import jwt, JWTError
 SECRET_KEY = 'my-secret-key'
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_EXPIRE_DAYS = 30
 
 
 def create_access_token(data: dict):
@@ -21,3 +22,10 @@ def decode_token(token: str):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+
+def create_refresh_token(data: dict):
+    payload = data.copy()
+    expire = datetime.utcnow() + timedelta(days=REFRESH_EXPIRE_DAYS)
+    payload["exp"] = expire
+    payload["type"] = "refresh"
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
