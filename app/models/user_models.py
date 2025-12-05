@@ -1,4 +1,5 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
+
 
 class UserBase(SQLModel):
     username: str = Field(index=True, max_length=25)
@@ -8,6 +9,8 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: int = Field(default=None, primary_key=True)
     password: str = Field(nullable=False)
+
+    viewhistory: list["ViewHistory"] = Relationship(back_populates="user") # type: ignore
 
 
 class UserPublic(UserBase):

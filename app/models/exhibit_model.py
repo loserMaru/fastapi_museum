@@ -20,6 +20,7 @@ class Exhibit(ExhibitBase, TimestampMixin, table=True):
 
     # Relationship для ORM
     category: "Category" = Relationship(back_populates="exhibits")  # type: ignore
+    viewhistory: list["ViewHistory"] = Relationship(back_populates="exhibits") # type: ignore
 
 
 class ExhibitPublic(ExhibitBase):
