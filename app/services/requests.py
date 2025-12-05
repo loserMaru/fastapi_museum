@@ -11,6 +11,14 @@ def get_list_from_db(session: SessionDep, obj, offset, limit):
     return lst
 
 
+def get_list_from_db_with_params(session: SessionDep, obj, column_name, value, offset, limit):
+    column = getattr(obj, column_name)
+    lst = session.exec(
+        select(obj).where(column == value).offset(offset).limit(limit)
+    ).all()
+    return lst
+
+
 def get_item_from_db_by_pk(session: SessionDep, obj: Type[SQLModel], item_id: int):
     item = session.get(obj, item_id)
     if not item:
