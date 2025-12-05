@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Annotated
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from app.exceptions.domain import ItemNotFoundError
 from app.models.category_model import Category
 from app.models.exhibit_model import Exhibit, ExhibitPublic
 from app.core.database import SessionDep
+from app.models.user_models import User
+from app.models.view_history_model import ViewHistory
 from app.security.auth import get_current_user
 from app.services.exhibit_service import ExhibitService
 from app.services.requests import (
@@ -35,8 +38,23 @@ async def get_list(
 
 
 @router.get("/{exhibit_id}", response_model=ExhibitPublic)
-async def get_exhibit(session: SessionDep, exhibit_id: int):
-    return get_item_from_db_by_pk(session, Exhibit, exhibit_id)
+async def get_exhibit(session: SessionDep, exhibit_id: int, user: User = Depends(get_current_user)):
+    try:
+        exhibit = get_item_from_db_by_pk(session, Exhibit, exhibit_id)
+
+    except ItemNotFoundError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    history = ViewHistory(
+        user_id=user.id,
+        exhibit_id=exhibit_id,
+        viewed_at=datetime.utcnow(),
+    )
+    session.add(history)
+    session.commit()
+    session.refresh(history)
+
+    return exhibit
 
 
 @router.post("/", response_model=ExhibitPublic)
