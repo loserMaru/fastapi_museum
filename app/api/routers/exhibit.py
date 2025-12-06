@@ -19,6 +19,7 @@ from app.services.requests import (
     delete_item_from_db,
     get_item_from_db
 )
+from app.services.view_history_service import ViewHistoryService
 
 router = APIRouter(
     prefix="/exhibit",
@@ -52,7 +53,8 @@ async def get_exhibit(session: SessionDep, exhibit_id: int, user: User = Depends
     )
     session.add(history)
     session.commit()
-    session.refresh(history)
+
+    ViewHistoryService.invalidate_user_cache(user.id)
 
     return exhibit
 
