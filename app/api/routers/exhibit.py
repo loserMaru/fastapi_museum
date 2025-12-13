@@ -62,6 +62,7 @@ async def get_exhibit(session: SessionDep, exhibit_id: int, user: User = Depends
 @router.post("/", response_model=ExhibitPublic)
 async def create_exhibit(
         session: SessionDep,
+        user: User = Depends(get_current_user),
         title: str = Form(...),
         description: str = Form(...),
         category_id: int = Form(...),
