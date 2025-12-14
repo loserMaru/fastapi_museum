@@ -1,4 +1,8 @@
-from app.tests.utils import assert_unauthorized
+from app.tests.utils import assert_unauthorized, assert_404
+
+
+def test_get_exhibits_unauthorized(client):
+    assert_unauthorized(client, url="/exhibit/")
 
 
 def test_get_exhibits(client, auth_headers):
@@ -7,9 +11,8 @@ def test_get_exhibits(client, auth_headers):
     assert isinstance(response.json(), list)
 
 
-def test_get_exhibits_unauthorized(client):
-    response = client.get("/exhibit/")  # без токена
-    assert response.status_code == 403
+def test_nonexisting_category(client):
+    assert_404(client, "/category/", 555)
 
 
 def test_create_exhibit_unauthorized(client):
@@ -17,9 +20,4 @@ def test_create_exhibit_unauthorized(client):
         client,
         "/exhibit/",
         "POST",
-        json={
-            "title": "test",
-            "description": "test",
-            "category_id": 1
-        }
     )
