@@ -25,3 +25,18 @@ def test_post_user(client):
     assert data["username"] == payload["username"]
     assert data["email"] == payload["email"]
     assert "password" not in data
+
+
+def test_post_user_with_existing_email(client, test_user):
+    payload = {
+        "username": "testuser",
+        "email": test_user.email,
+        "password": "strongpassword123"
+    }
+
+    response = client.post("/user/", json=payload)
+
+    assert response.status_code in (400, 409)
+
+    data = response.json()
+    assert "already" in data["detail"].lower()
