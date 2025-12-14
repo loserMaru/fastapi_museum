@@ -1,4 +1,6 @@
 import pytest
+
+from sqlalchemy import StaticPool
 from sqlmodel import SQLModel, Session, create_engine
 from starlette.testclient import TestClient
 
@@ -9,10 +11,11 @@ from app.security.jwt_utils import create_access_token
 
 # In-memory SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
 
 # Создаём все таблицы один раз
 SQLModel.metadata.create_all(bind=engine)
+
 
 # Фикстура сессии для всех тестов
 @pytest.fixture(scope="module")
@@ -20,12 +23,14 @@ def session():
     with Session(engine) as s:
         yield s
 
+
 # Override зависимости get_session на тестовую сессию
 @pytest.fixture(scope="module")
 def client(session):
     app.dependency_overrides[get_session] = lambda: session
     with TestClient(app) as c:
         yield c
+
 
 # Создаём тестового пользователя
 @pytest.fixture
@@ -43,6 +48,7 @@ def test_user(session):
     yield user
     session.delete(user)
     session.commit()
+
 
 # Фикстура для авторизации с payload как в основном проекте
 @pytest.fixture
