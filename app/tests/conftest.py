@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from sqlalchemy import StaticPool
@@ -20,34 +22,39 @@ SQLModel.metadata.create_all(bind=engine)
 # Фикстура сессии для всех тестов
 @pytest.fixture(scope="module")
 def session():
-    with Session(engine) as s:
-        yield s
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = Session(bind=connection)
+    try:
+        yield session
+    finally:
+        session.close()
+        transaction.rollback()
+        connection.close()
 
 
 # Override зависимости get_session на тестовую сессию
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def client(session):
     app.dependency_overrides[get_session] = lambda: session
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.clear()
 
 
 # Создаём тестового пользователя
 @pytest.fixture
 def test_user(session):
     user = User(
-        id=1,
-        username="testuser",
+        username=f"testuser_{uuid.uuid4().hex[:6]}",
         password="12345678",
-        email="testmail@gmail.com",
+        email=f"test_{uuid.uuid4().hex[:6]}@gmail.com",
         is_active=True
     )
     session.add(user)
     session.commit()
     session.refresh(user)
-    yield user
-    session.delete(user)
-    session.commit()
+    return user
 
 
 # Фикстура для авторизации с payload как в основном проекте
