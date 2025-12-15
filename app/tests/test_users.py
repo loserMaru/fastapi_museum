@@ -1,4 +1,4 @@
-from app.tests.utils import get_list_assert, assert_unauthorized
+from app.tests.utils import get_list_assert, assert_unauthorized, assert_404
 
 
 def test_get_users(client, auth_headers):
@@ -7,6 +7,10 @@ def test_get_users(client, auth_headers):
 
 def test_get_users_unauthorized(client):
     assert_unauthorized(client, "/user/")
+
+
+def test_get_unexisting_user(client):
+    assert_404(client, "/user/", 555)
 
 
 def test_post_user(client):
