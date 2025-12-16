@@ -44,3 +44,21 @@ def test_post_user_with_existing_email(client, test_user):
 
     data = response.json()
     assert "already" in data["detail"].lower()
+
+
+def test_patch_user(client, test_user, auth_headers):
+    payload = {
+        "username": "patcheduser",
+        "email": "testmail@gmail.com",
+        "password": "strongpass123"
+    }
+
+    response = client.patch(f"/user/{test_user.id}", json=payload, headers=auth_headers)
+
+    assert response.status_code == 200
+
+    # Доп проверка что данные действительно изменились
+    data = response.json()
+    assert data["id"] == test_user.id
+    assert data["username"] == "patcheduser"
+    assert data["email"] == "testmail@gmail.com"
