@@ -4,7 +4,7 @@ def assert_unauthorized(client, url: str, method: str = "get", json: dict | None
     assert response.status_code in (401, 403)
 
 
-def get_list_assert(client, url: str, headers: dict):
+def get_list_assert(client, url: str, headers: dict | None):
     response = client.get(url, headers=headers)
     assert response.status_code == 200
     assert isinstance(response.json(), list)
