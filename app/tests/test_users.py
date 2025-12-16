@@ -62,3 +62,11 @@ def test_patch_user(client, test_user, auth_headers):
     assert data["id"] == test_user.id
     assert data["username"] == "patcheduser"
     assert data["email"] == "testmail@gmail.com"
+
+
+def test_delete_user(client, test_user, auth_headers):
+    response = client.delete(f"/user/{test_user.id}", headers=auth_headers)
+    assert response.status_code == 200
+
+    response = client.get(f"/user/{test_user.id}", headers=auth_headers)
+    assert response.status_code == 404
