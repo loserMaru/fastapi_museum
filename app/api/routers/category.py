@@ -56,7 +56,7 @@ async def update_category(session: SessionDep, category_id: int, category_data: 
         raise HTTPException(status_code=404, detail="Category not found")
 
 
-@router.delete("/{category_id")
+@router.delete("/{category_id}")
 async def delete_category(session: SessionDep, category_id: int):
     try:
         delete_item_from_db(session, Category, category_id)
