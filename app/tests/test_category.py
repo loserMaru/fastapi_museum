@@ -23,3 +23,18 @@ def test_post_category(client, auth_headers):
     data = response.json()
     assert data["id"]
     assert data["title"] == payload["title"]
+
+
+def test_patch_category(client, test_category, auth_headers):
+    payload = {
+        "title": "Patched title",
+        "description": "Patched description"
+    }
+
+    response = client.patch(f"/category/{test_category.id}", json=payload, headers=auth_headers)
+    assert response.status_code == 200
+
+    # Доп проверка
+    data = response.json()
+    assert data["id"] == test_category.id
+    assert data["title"] == payload["title"]
