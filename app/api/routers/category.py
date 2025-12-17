@@ -47,7 +47,7 @@ async def get_category(session: SessionDep, category_id: int):
         raise HTTPException(status_code=404, detail="Category not found")
 
 
-@router.patch("/{category_id", response_model=CategoryPublic)
+@router.patch("/{category_id}", response_model=CategoryPublic)
 async def update_category(session: SessionDep, category_id: int, category_data: CategoryUpdate):
     try:
         return update_item_from_db(session, Category, category_id, category_data)
