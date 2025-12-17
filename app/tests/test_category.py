@@ -38,3 +38,11 @@ def test_patch_category(client, test_category, auth_headers):
     data = response.json()
     assert data["id"] == test_category.id
     assert data["title"] == payload["title"]
+
+
+def test_delete_category(client, test_category, auth_headers):
+    response = client.delete(f"/category/{test_category.id}", headers=auth_headers)
+    assert response.status_code == 200
+
+    response = client.get(f"/category/{test_category.id}", headers=auth_headers)
+    assert response.status_code == 404
