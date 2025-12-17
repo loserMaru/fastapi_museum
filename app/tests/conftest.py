@@ -7,6 +7,7 @@ from sqlmodel import SQLModel, Session, create_engine
 from starlette.testclient import TestClient
 
 from app.main import app
+from app.models.category_model import Category
 from app.models.user_models import User
 from app.core.database import get_session
 from app.security.jwt_utils import create_access_token
@@ -55,6 +56,19 @@ def test_user(session):
     session.commit()
     session.refresh(user)
     return user
+
+
+@pytest.fixture
+def test_category(session):
+    category = Category(
+        title=f"test_category_{uuid.uuid4().hex[:6]}",
+        description=f"test_category_{uuid.uuid4().hex[:6]}",
+        is_active=True
+    )
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
 
 
 # Фикстура для авторизации с payload как в основном проекте
