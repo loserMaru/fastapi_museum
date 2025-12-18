@@ -14,3 +14,11 @@ def assert_404(client, url, index, method: str = "get"):
     request = getattr(client, method.lower())
     response = request(f"{url}/{index}")
     assert response.status_code == 404
+
+
+def delete_assert(client, url: str, headers: dict | None):
+    response = client.delete(url, headers=headers)
+    assert response.status_code == 200
+
+    response = client.get(url, headers=headers)
+    assert response.status_code == 404
