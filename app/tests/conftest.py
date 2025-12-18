@@ -8,6 +8,7 @@ from starlette.testclient import TestClient
 
 from app.main import app
 from app.models.category_model import Category
+from app.models.exhibit_model import Exhibit
 from app.models.user_models import User
 from app.core.database import get_session
 from app.security.jwt_utils import create_access_token
@@ -70,6 +71,19 @@ def test_category(session):
     session.refresh(category)
     return category
 
+
+@pytest.fixture
+def test_exhibit(session, test_category):
+    exhibit = Exhibit(
+        title=f"test_exhibit_{uuid.uuid4().hex[:6]}",
+        description=f"test_exhibit_{uuid.uuid4().hex[:6]}",
+        category_id=test_category.id,
+        is_active=True
+    )
+    session.add(exhibit)
+    session.commit()
+    session.refresh(exhibit)
+    return exhibit
 
 # Фикстура для авторизации с payload как в основном проекте
 @pytest.fixture
