@@ -8,9 +8,9 @@ services:
       - redis
     volumes:
       - .:/app
-      - sqlite_data:/app
+      - sqlite_data:/data
     environment:
-      DATABASE_URL: "sqlite:///database.db"
+      DATABASE_URL: "sqlite:////data/database.db"
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
 
