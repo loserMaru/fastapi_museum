@@ -1,4 +1,4 @@
-from app.tests.utils import assert_404, get_list_assert
+from app.tests.utils import assert_404, get_list_assert, delete_assert
 
 
 def test_get_list_category(client):
@@ -41,8 +41,4 @@ def test_patch_category(client, test_category, auth_headers):
 
 
 def test_delete_category(client, test_category, auth_headers):
-    response = client.delete(f"/category/{test_category.id}", headers=auth_headers)
-    assert response.status_code == 200
-
-    response = client.get(f"/category/{test_category.id}", headers=auth_headers)
-    assert response.status_code == 404
+    delete_assert(client, f"/category/{test_category.id}", auth_headers)
