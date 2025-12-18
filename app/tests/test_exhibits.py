@@ -1,4 +1,4 @@
-from app.tests.utils import assert_unauthorized, assert_404
+from app.tests.utils import assert_unauthorized, assert_404, delete_assert
 
 
 def test_get_exhibits_unauthorized(client):
@@ -37,3 +37,7 @@ def test_patch_exhibit(client, test_exhibit, auth_headers):
     data = response.json()
     assert data["title"] == payload["title"]
     assert data["description"] == payload["description"]
+
+
+def test_delete_exhibit(client, test_exhibit, auth_headers):
+    delete_assert(client, f"/exhibit/{test_exhibit.id}", auth_headers)
