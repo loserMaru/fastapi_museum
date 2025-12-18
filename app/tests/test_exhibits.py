@@ -21,3 +21,19 @@ def test_create_exhibit_unauthorized(client):
         "/exhibit/",
         "POST",
     )
+
+
+def test_patch_exhibit(client, test_exhibit, auth_headers):
+    payload = {
+        "title": "Patched title",
+        "description": "Patched description",
+    }
+
+    response = client.patch(f"/exhibit/{test_exhibit.id}", data=payload, headers=auth_headers)
+
+    assert response.status_code == 200
+
+    # Доп проверка
+    data = response.json()
+    assert data["title"] == payload["title"]
+    assert data["description"] == payload["description"]
