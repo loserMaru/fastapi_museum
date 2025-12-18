@@ -1,4 +1,4 @@
-from app.tests.utils import get_list_assert, assert_unauthorized, assert_404
+from app.tests.utils import get_list_assert, assert_unauthorized, assert_404, delete_assert
 
 
 def test_get_users(client, auth_headers):
@@ -65,8 +65,4 @@ def test_patch_user(client, test_user, auth_headers):
 
 
 def test_delete_user(client, test_user, auth_headers):
-    response = client.delete(f"/user/{test_user.id}", headers=auth_headers)
-    assert response.status_code == 200
-
-    response = client.get(f"/user/{test_user.id}", headers=auth_headers)
-    assert response.status_code == 404
+    delete_assert(client, f"/user/{test_user.id}", auth_headers)
